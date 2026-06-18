@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="вход_курсач.Authorization">
+    <Position X="33.75" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAgQAAECgAAFBCAACACAACAAAIAAAAAEAAAAAEAAA=</HashCode>
+      <FileName>Login\Authorization.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.ClassUser">
+    <Position X="29.25" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAgEAAAAAAAAEAIAAAQABCAAAAACAAAQEAAIAAA=</HashCode>
+      <FileName>Login\ClassUser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.CompanyYearItem">
+    <Position X="18.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAACACAAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>Report\CompanyYearlyReportForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.CompanyYearlyReportForm">
+    <Position X="15.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAoAAAFCAFEAAAJACAAAACBggAAAAAAAAAAQAABAA=</HashCode>
+      <FileName>Report\CompanyYearlyReportForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.CreateQuarterlyReportForm">
+    <Position X="5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABCAgAgQVCQQABBAhAGwAAwCLAgEEACIJAAIAAAABEg=</HashCode>
+      <FileName>Report\Quartely\CreateQuarterlyReportForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.DB_Quarterly">
+    <Position X="24.75" Y="12.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="вход_курсач.DB_Quarterly.GasAggregation" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>SQL\DB_Report.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAgQKAIEAACAQAIEAgAgAACAEAACAAAAQEEAAAABAQ=</HashCode>
+      <FileName>SQL\DB_Report.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.EmployeeItem">
+    <Position X="18.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAIAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UserManagment\UserManagementModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.FilialDisplayItem">
+    <Position X="21.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAACAAAAACAABAAAAAAAA=</HashCode>
+      <FileName>UserManagment\UserManagementModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.FilialEditItem">
+    <Position X="16.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAACAAIAAQAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>UserManagment\UserManagementModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.Filials">
+    <Position X="37" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hQAAgICCEDABACAQBACAAAACAAgEgABgAAgAAAAAAAQ=</HashCode>
+      <FileName>Filials.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.Login">
+    <Position X="24.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAECAAABABAASAAAACAAAgAAACUEAAAAAAAAA=</HashCode>
+      <FileName>Login\Login.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.Main">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>pRIAEAEENCQQAIASkAiBAQoSABISCFTJgABDICQgAAA=</HashCode>
+      <FileName>Main.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.NewUsers">
+    <Position X="8" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAFCQEAAAAAACAACCCAAoEAAAAAAIEAAFAAAA=</HashCode>
+      <FileName>Login\NewUsers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.NotificationService">
+    <Position X="27.75" Y="17.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAABAAAAAAEAAABQQAAAAAAAAAAAIA=</HashCode>
+      <FileName>Notificationservice .cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.Program">
+    <Position X="5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAACAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.OperationResult">
+    <Position X="32.25" Y="17" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAgAAgAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>UserManagment\UserManagementModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.QuartelyPoint">
+    <Position X="30.75" Y="16.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAFAAAAAAAIAAAAAACAAEAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>Report\Analis\Analysis_QuartelyModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.QuartelyResult">
+    <Position X="27.75" Y="15" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAAAAgAAAAAAAAAAgEAAgACAAAAAEA=</HashCode>
+      <FileName>Report\Analis\Analysis_QuartelyModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.QuarterlyForecastForm">
+    <Position X="32.25" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAECAUAAAQBAKAAAASAAAgQAAAABAAAAABAAA=</HashCode>
+      <FileName>Report\Analis\QuarterlyForecastForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.QuarterlyForecastService">
+    <Position X="26.25" Y="15.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAIAAAAAAAAAAAAAAAAACgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Report\Analis\Analysis_QuartelyModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.QuarterlyReportViewForm">
+    <Position X="30.75" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAUCAAAAAABACAAAACACABAAAABCAAABAAEAA=</HashCode>
+      <FileName>Report\Quartely\QuarterlyReportViewForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.RaportShift">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>8CAAgIMFFaAAABCABUCAIQBSLIgEADRAEAAgAAIAAoA=</HashCode>
+      <FileName>Report\Shift\RaportShift.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.ShiftReportData">
+    <Position X="26.25" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAACAQAAAQAAIAAABAAAAAAGAAACAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>Report\Shift\ShiftReportModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.TelegramBridge">
+    <Position X="35.25" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAQYAAABAAAAAAIgAQAAAAAAAA=</HashCode>
+      <FileName>TelegramBridge.cs.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="вход_курсач.ShiftReportListItem">
+    <Position X="27.75" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAQAAAAAAAAAABAAAQAAGAAAAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>Report\Shift\ShiftReportModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.UserManagementForm">
+    <Position X="2" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="вход_курсач.UserManagementForm.UserFormData" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>UserManagment\UserManagementForm.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>GAEIgAEB1ahCAkAMBAikAyUCEgIEQQoAISAAAAgABCA=</HashCode>
+      <FileName>UserManagment\UserManagementForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.UserManagementItem">
+    <Position X="29.25" Y="16.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAgEAAAAAAAAEAIAAAQABCAAAAACAAAQEAAIAAA=</HashCode>
+      <FileName>UserManagment\UserManagementModels.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.WorkScheduleForm">
+    <Position X="3.5" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="вход_курсач.WorkScheduleForm.HeaderPanel" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>UserManagment\Workscheduleform.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>CBEEhKAQUaBASEAADAjhDwACAIAMAMCCEEgAAAEBAIA=</HashCode>
+      <FileName>UserManagment\Workscheduleform.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.YearlyForecastResult">
+    <Position X="35.25" Y="17.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAAAAgAAAAAAAAAAgAAAgACAAAAAAA=</HashCode>
+      <FileName>Report\Yearly\YearlyForecastService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.YearlyForecastService">
+    <Position X="21.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Report\Yearly\YearlyForecastService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.YearlyReportForm">
+    <Position X="19.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgEgAFCAAABAQBAGgAAACDggMEAAIAEAAAIBAAAA=</HashCode>
+      <FileName>Report\Yearly\YearlyReportForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.Properties.Resources">
+    <Position X="18.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAABAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.Design.GazpromStyle">
+    <Position X="16.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECABAIBCAAAsIAAAAAAAAAAACABAAAQAABCAABAAAAA=</HashCode>
+      <FileName>Design\GazpromStyle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.SQL.DB">
+    <Position X="8" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IACgAAAACkABAAoECEAAAAZAARBAAAAkIQAICBgAJBE=</HashCode>
+      <FileName>SQL\DB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.SQL.SQL_DB">
+    <Position X="26.25" Y="17.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>SQL\SQL_DB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.SQL.WorkPlanDB">
+    <Position X="22.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAAAAAAAAAIgIAAABAJAAAAAAQgAAA=</HashCode>
+      <FileName>SQL\WorkPlanDB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.SQL.WorkPlanItem">
+    <Position X="22.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>SQL\WorkPlanDB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="вход_курсач.UserManagment.WorkScheduleItem">
+    <Position X="21.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAACAAAAAQAAAAAAAAIAAAgEACAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>UserManagment\WorkSchedule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="вход_курсач.ITelegramNotifier">
+    <Position X="35.25" Y="15.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQIAAABAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>Notificationservice .cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
