@@ -1,0 +1,88 @@
+﻿using Microsoft.Data.Sqlite;
+using System;
+using System.IO;
+using System.Windows.Forms;
+
+namespace вход_курсач
+{
+    internal static class Program
+    {
+        public static string ConnectionString { get; private set; }
+
+        static void Main()
+        {
+            ApplicationConfiguration.Initialize();
+
+            try
+            {
+                // Создаем папку Data рядом с приложением
+                string dataFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+                if (!Directory.Exists(dataFolder))
+                    Directory.CreateDirectory(dataFolder);
+
+                // Путь к файлу базы данных
+                string dbFile = Path.Combine(dataFolder, "TPPO.db");
+                ConnectionString = $"Data Source={dbFile}";
+
+                // Если базы нет - создаем
+                if (!File.Exists(dbFile))
+                {
+                    CreateDatabase();
+                }
+
+                Application.Run(new Login());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}\n\n" +
+                    "Попробуйте запустить от имени администратора",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static void CreateDatabase()
+        {
+            using (var conn = new SqliteConnection(ConnectionString))
+            {
+                conn.Open();
+
+                string sql = @"
+                    CREATE TABLE IF NOT EXISTS Users (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT NOT NULL,
+                        Surname TEXT NOT NULL,
+                        SecondName TEXT NOT NULL,
+                        Filial INTEGER NOT NULL,
+                        TeamNum INTEGER,
+                        Status INTEGER NOT NULL,
+                        Login TEXT UNIQUE NOT NULL,
+                        Password TEXT NOT NULL,
+                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+                    
+                    INSERT INTO Users (Name, Surname, SecondName, Filial, TeamNum, Status, Login, Password)
+                    VALUES ('Админ', 'Админов', 'Админович', 1, 1, 5, 'admin', 'admin');
+                    
+                    CREATE TABLE IF NOT EXISTS Status_and_RoleName (
+                        Status INTEGER PRIMARY KEY,
+                        RoleName TEXT NOT NULL
+                    );
+
+                    INSERT OR IGNORE INTO Status_and_RoleName (Status, RoleName) VALUES
+                    (0, 'Заявка (не подтверждён)'),
+                    (1, 'Работник'),
+                    (2, 'Отдел кадров')
+                    (3, 'Начальник смены'),
+                    (4, 'Бухгалтер'),
+                    (5, 'Нач. филиала / зам'),
+                    (6, 'Администратор');
+                    ";
+
+                using (var cmd = new SqliteCommand(sql, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+    }
+}

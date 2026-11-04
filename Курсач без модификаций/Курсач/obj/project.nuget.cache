@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "dgSpecHash": "Fidc6mZc60Y=",
+  "success": true,
+  "projectFilePath": "D:\\ТППО\\Курсач\\вход курсач.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ACER\\.nuget\\packages\\dapper\\2.1.72\\dapper.2.1.72.nupkg.sha512",
+    "C:\\Users\\ACER\\.nuget\\packages\\microsoft.data.sqlite\\10.0.5\\microsoft.data.sqlite.10.0.5.nupkg.sha512",
+    "C:\\Users\\ACER\\.nuget\\packages\\microsoft.data.sqlite.core\\10.0.5\\microsoft.data.sqlite.core.10.0.5.nupkg.sha512",
+    "C:\\Users\\ACER\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.11\\sqlitepclraw.bundle_e_sqlite3.2.1.11.nupkg.sha512",
+    "C:\\Users\\ACER\\.nuget\\packages\\sqlitepclraw.core\\2.1.11\\sqlitepclraw.core.2.1.11.nupkg.sha512",
+    "C:\\Users\\ACER\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.11\\sqlitepclraw.lib.e_sqlite3.2.1.11.nupkg.sha512",
+    "C:\\Users\\ACER\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.1.11\\sqlitepclraw.provider.e_sqlite3.2.1.11.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Произошла ошибка при получении данных уязвимости пакета: Не удалось загрузить индекс службы для источника https://api.nuget.org/v3/index.json.",
+      "projectPath": "D:\\ТППО\\Курсач\\вход курсач.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\ТППО\\Курсач\\вход курсач.csproj",
+      "targetGraphs": []
+    }
+  ]
+}

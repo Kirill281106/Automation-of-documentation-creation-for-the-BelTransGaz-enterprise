@@ -1,0 +1,158 @@
+﻿using Dapper;
+using Microsoft.Data.Sqlite;
+using System.Data;
+namespace вход_курсач
+{
+    internal class DB
+    {
+        private readonly string _connection;
+
+        public DB(string connection)
+        {
+            _connection = connection;
+        }
+
+        public ClassUser Authenticate(string login, string password)
+        {
+            using (IDbConnection db = new SqliteConnection(_connection))
+            {
+                string sql = @"SELECT * FROM Users
+                               WHERE Login = @Login AND Password = @Password";
+
+                return db.QueryFirstOrDefault<ClassUser>(sql, new
+                {
+                    Login = login,
+                    Password = password
+                });
+            }
+        }
+        public ClassUser NewUser(string name, string surname, string secondName, string login, string password, string Filial)
+        {
+            using(IDbConnection db = new SqliteConnection(_connection))
+            {
+                string existsSql = @"SELECT * FROM Users WHERE Login = @Login";
+                var existing = db.QueryFirstOrDefault<ClassUser>(existsSql, new { Login = login });
+                if (existing != null)
+                {
+                    return null;
+                }
+
+                // Пользователь вводит название филиала, а в таблице Users храним числовой Id филиала.
+                // Попытаемся найти Id по названию в таблице Filials (Name -> Id). Если не найдём — используем 0.
+                int filialInt = 0;
+                if (!string.IsNullOrWhiteSpace(Filial))
+                {
+                    // Ожидается, что в базе есть таблица Filials с колонками Id (int) и Name (text)
+                    var filialId = db.QueryFirstOrDefault<int?>("SELECT Id FROM Filials WHERE Name = @Name", new { Name = Filial });
+                    if (filialId.HasValue)
+                    {
+                        filialInt = filialId.Value;
+                    }
+                }
+
+                string insertSql = @"INSERT INTO Users (Login, Password, Name, Surname, SecondName, Filial, Status)
+                                     VALUES (@Login, @Password, @Name, @Surname, @SecondName, @Filial, @Status);";
+
+                db.Execute(insertSql, new
+                {
+                    Login = login,
+                    Password = password,
+                    Name = name,
+                    Surname = surname,
+                    SecondName = secondName,
+                    Filial = filialInt,
+                    Status = 0
+                });
+
+                // Получаем Id только что созданной записи и возвращаем её
+                var idObj = db.ExecuteScalar<long>("SELECT last_insert_rowid();");
+                int newId = (int)idObj;
+
+                string selectSql = "SELECT * FROM Users WHERE Id = @Id";
+                var createdUser = db.QueryFirstOrDefault<ClassUser>(selectSql, new { Id = newId });
+
+                // Создаём запись-заявку в таблице Requests (новая заявка)
+                try
+                {
+                    db.Execute("INSERT INTO Requests (UserId, RequestStatus) VALUES (@UserId, @Status)", new { UserId = newId, Status = 0 });
+                }
+                catch
+                {
+                    // Если таблицы нет или произошла ошибка — игнорируем, но пользователь создан
+                }
+
+                return createdUser;
+            }
+        }
+    }
+}
+/*
+ * вариант ещё одной таблицы в ней содержатся краткая инфа по договору тоесть имя нового сотрудника и его должность можно дата найма
+ * чтоб можно было при подтверждении сразу подставить ему должность по контракту
+ * 
+ * // Таблица 2: Сменные отчёты
+string createShiftReportsTable = @"
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ShiftReports' AND xtype='U')
+    CREATE TABLE ShiftReports (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        UserId INT NOT NULL,
+        ReportDate DATETIME DEFAULT GETDATE(),
+        ShiftType NVARCHAR(50) NOT NULL,
+        ProductionAmount DECIMAL(18,2) NOT NULL,
+        DefectAmount DECIMAL(18,2) DEFAULT 0,
+        Comments NVARCHAR(500) NULL,
+        FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+    )";
+db.Execute(createShiftReportsTable);
+
+// Таблица 3: Графики работы
+string createWorkSchedulesTable = @"
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='WorkSchedules' AND xtype='U')
+    CREATE TABLE WorkSchedules (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Filial INT NOT NULL,
+        TeamNum INT NOT NULL,
+        WorkDate DATE NOT NULL,
+        ShiftType NVARCHAR(50) NOT NULL,
+        CreatedBy INT NOT NULL,
+        CreatedAt DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY (CreatedBy) REFERENCES Users(Id)
+    )";
+db.Execute(createWorkSchedulesTable);
+
+// Таблица 4: Отчёты (годовые/квартальные)
+string createReportsTable = @"
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='FinancialReports' AND xtype='U')
+    CREATE TABLE FinancialReports (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        ReportType NVARCHAR(50) NOT NULL, -- 'Yearly', 'Quarterly'
+        Period NVARCHAR(50) NOT NULL,     -- '2024', 'Q1-2024'
+        Filial INT NOT NULL,
+        TotalIncome DECIMAL(18,2) NOT NULL,
+        TotalExpenses DECIMAL(18,2) NOT NULL,
+        Profit DECIMAL(18,2) NOT NULL,
+        CreatedBy INT NOT NULL,
+        CreatedAt DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY (CreatedBy) REFERENCES Users(Id)
+    )";
+db.Execute(createReportsTable);
+
+// Таблица 5: Прогнозы роста
+string createForecastsTable = @"
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='GrowthForecasts' AND xtype='U')
+    CREATE TABLE GrowthForecasts (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Filial INT NOT NULL,
+        ForecastYear INT NOT NULL,
+        ExpectedGrowth DECIMAL(5,2) NOT NULL,
+        CreatedBy INT NOT NULL,
+        CreatedAt DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY (CreatedBy) REFERENCES Users(Id)
+    )";
+db.Execute(createForecastsTable); 
+я это удалил потому что мне надопонять как работать в виндовс формах с бд на примере входа и создания нового пользователя
+кстати я хочу сделать такую фичу что пользователь оставляет  запрос на создание ака этот запрос приходит админу и он может его посмотреть и добавить и только после этого всего он может войти в систему потому что входить может только сотрудник а не любой желающий 
+для отправки понятное дело что все поля должны быть заполнены 
+но для упрожения я хочу сначала войти в систему но пока там нет никого
+вопрос если запустить бд на другом пк бд пропадёт?
+*/

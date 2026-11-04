@@ -1,7 +1,0 @@
-appsettings.json
-appsettings.Development.json
-config.json
-bin/
-obj/
-.vs/
-*.db

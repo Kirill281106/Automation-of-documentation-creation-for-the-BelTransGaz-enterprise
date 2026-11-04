@@ -1,0 +1,68 @@
+﻿using Dapper;
+
+namespace вход_курсач
+{
+    public partial class Authorization : Form
+    {
+        private DB _db;
+
+        public Authorization()
+        {
+            InitializeComponent();
+            _db = new DB(Program.ConnectionString);
+            this.Load += Authorization_Load;
+        }
+
+        private void Authorization_Load(object sender, EventArgs e)
+        {
+                using (var conn = new Microsoft.Data.Sqlite.SqliteConnection(Program.ConnectionString))
+                {
+                    conn.Open();
+                    var list = conn.Query("SELECT Id, Name FROM Filials ORDER BY Name").ToList();
+                    FilialCombo.DisplayMember = "Name";
+                    FilialCombo.ValueMember = "Id";
+                    FilialCombo.DataSource = list;
+                }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string login = LoginTxt.Text.Trim();
+            string password = PasswordTxt.Text.Trim();
+            string name = NameTxt.Text.Trim();
+            string surname = SurnameTxt.Text.Trim();
+            string secondName = SecondNameTxt.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password) ||
+                string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(surname))
+            {
+                MessageBox.Show("Заполните обязательные поля: имя, фамилия, логин и пароль", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Получаем выбранный филиал. Если ничего не выбрано — передаём пустую строку (DB.NewUser обработает как 0)
+            string filialName = string.Empty;
+            if (FilialCombo.Items.Count > 0 && FilialCombo.SelectedItem != null)
+            {
+                var sel = FilialCombo.SelectedItem;
+                try
+                {
+                    var nameProp = sel.GetType().GetProperty("Name");
+                    if (nameProp != null)
+                        filialName = nameProp.GetValue(sel)?.ToString() ?? string.Empty;
+                }
+                catch { }
+            }
+
+            var created = _db.NewUser(name, surname, secondName, login, password, filialName);
+            if (created == null)
+            {
+                MessageBox.Show("Пользователь с таким логином уже существует или произошла ошибка.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            MessageBox.Show("Заявка отправлена. Дождитесь подтверждения.", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.Close();
+        }
+    }
+}
