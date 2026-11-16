@@ -9,28 +9,19 @@ namespace вход_курсач
     public partial class YearlyReportForm : Form
     {
         private readonly int _userId;
-        private readonly DB_Quarterly _db;
+        private readonly DB_YearlyReport _db = new DB_YearlyReport();
+        private readonly Design.ColumnSorter _sorter = new();
         private List<QuarterlyReportListItem> _reports;
-        private string _lastSortedColumn = "";
-        private bool _ascending = true;
 
         public YearlyReportForm(int userId)
         {
             InitializeComponent();
             _userId = userId;
-            _db = new DB_Quarterly(Program.ConnectionString);
-            var user = _db.GetUserById(userId);
-            if (user.Status == 3 && user.Status == 6)
-            {
-                label1.Visible = false;
-                comboBox1.Visible = false;
-                btnCreate.Visible = false;
-            }
             SetupGrid();
             LoadYears();
             LoadReports();
 
-            this.Load += (s, e) => ApplyGazpromStyle();
+            this.Load += (s, e) => Design.GazpromStyle.StyleAll(this);
             dataGridView1.ColumnHeaderMouseClick += DataGridView1_ColumnHeaderMouseClick;
         }
 
@@ -44,46 +35,10 @@ namespace вход_курсач
             if (string.IsNullOrEmpty(columnName))
                 return;
 
-            if (_lastSortedColumn == columnName)
-                _ascending = !_ascending;
-            else
-                _ascending = true;
-
-            _lastSortedColumn = columnName;
-
-            var prop = typeof(QuarterlyReportListItem).GetProperty(columnName);
-            if (prop == null)
-                return;
-
-            _reports = _ascending
-                ? _reports.OrderBy(x => prop.GetValue(x)).ToList()
-                : _reports.OrderByDescending(x => prop.GetValue(x)).ToList();
+            _reports = _sorter.Sort(_reports, columnName);
 
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = _reports;
-        }
-
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn) Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is TextBox txt) Design.GazpromStyle.StyleTextBox(txt);
-                else if (ctrl is Label lbl) Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb) Design.GazpromStyle.StyleComboBox(cmb);
-                else if (ctrl is DataGridView dgv) Design.GazpromStyle.StyleDataGridView(dgv);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
         }
 
         private void LoadYears()
@@ -203,12 +158,6 @@ namespace вход_курсач
             var result = _db.CreateYearlyReport(_userId, year);
             if (result.Success)
             {
-                // ✅ НОВОЕ уведомление о создании годового отчёта
-                string filialName = _db.GetFilialNameById(_db.GetFilialByUserId(_userId));
-                NotificationService.ReportCreated("Годовой",
-                    $"{year} г.\n" +
-                    $"Филиал: {filialName}");
-
                 MessageBox.Show($"Годовой отчёт за {year} создан.");
                 LoadReports();
             }

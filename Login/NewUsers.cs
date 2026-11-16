@@ -1,13 +1,11 @@
-﻿using Dapper;
-
-namespace вход_курсач
+﻿namespace вход_курсач
 {
     public partial class NewUsers : Form
     {
-        private int CurrentUserId;
+        private readonly int CurrentUserId;
+        private readonly DB_Requests _db = new DB_Requests();
+        private readonly Design.ColumnSorter _sorter = new();
         private List<ClassUser> _currentList = new();
-        private string _lastSortedColumn = "";
-        private bool _ascending = true;
 
         public NewUsers(int userId)
         {
@@ -29,21 +27,7 @@ namespace вход_курсач
             if (string.IsNullOrEmpty(columnName))
                 return;
 
-            if (_lastSortedColumn == columnName)
-                _ascending = !_ascending;
-            else
-                _ascending = true;
-
-            _lastSortedColumn = columnName;
-
-            var prop = typeof(ClassUser).GetProperty(columnName);
-
-            if (prop == null)
-                return;
-
-            _currentList = _ascending
-                ? _currentList.OrderBy(x => prop.GetValue(x)).ToList()
-                : _currentList.OrderByDescending(x => prop.GetValue(x)).ToList();
+            _currentList = _sorter.Sort(_currentList, columnName);
 
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = _currentList;
@@ -61,15 +45,10 @@ namespace вход_курсач
         {
             try
             {
-                using (var conn = new Microsoft.Data.Sqlite.SqliteConnection(Program.ConnectionString))
-                {
-                    var list = conn.Query("Select Status,RoleName from Status_and_RoleName").ToList();
-
-                    comboBoxRole.DisplayMember = "RoleName";
-                    comboBoxRole.ValueMember = "Status";
-                    comboBoxRole.DataSource = list;
-                    comboBoxRole.SelectedIndex = 0;
-                }
+                comboBoxRole.DisplayMember = "RoleName";
+                comboBoxRole.ValueMember = "Status";
+                comboBoxRole.DataSource = new DB_Users().GetRoles();
+                comboBoxRole.SelectedIndex = 0;
             }
             catch
             {
@@ -84,9 +63,7 @@ namespace вход_курсач
                 dataGridView1.Rows.Clear();
                 dataGridView1.Columns.Clear();
 
-                DB dB = new DB(Program.ConnectionString);
-
-                _currentList = dB.ListApplication(CurrentUserId);
+                _currentList = _db.ListApplication(CurrentUserId);
 
                 if (_currentList == null || _currentList.Count == 0)
                 {
@@ -149,9 +126,7 @@ namespace вход_курсач
             }
 
             ClassUser newUser = (ClassUser)dataGridView1.SelectedRows[0].DataBoundItem;
-            DB dB = new DB(Program.ConnectionString);
-            long newStatus = Convert.ToInt64(comboBoxRole.SelectedValue);
-            bool success = dB.ApproveRequest(newUser.Id, (int)newStatus, CurrentUserId);
+            _db.ApproveRequest(newUser.Id, Convert.ToInt32(comboBoxRole.SelectedValue));
 
             MessageBox.Show("Заявка одобрена успешно", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             ListForGVB();
@@ -172,10 +147,7 @@ namespace вход_курсач
             {
                 ClassUser selectedUser = (ClassUser)dataGridView1.SelectedRows[0].DataBoundItem;
 
-                DB dB = new DB(Program.ConnectionString);
-                bool success = dB.DeleteRequest(selectedUser.Id);
-
-                if (success)
+                if (_db.DeleteRequest(selectedUser.Id))
                 {
                     MessageBox.Show("Заявка удалена", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ListForGVB();

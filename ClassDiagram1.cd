@@ -35,23 +35,6 @@
       <FileName>Report\Quartely\CreateQuarterlyReportForm.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="вход_курсач.DB_Quarterly">
-    <Position X="24.75" Y="12.5" Width="1.5" />
-    <Compartments>
-      <Compartment Name="Nested Types" Collapsed="false" />
-    </Compartments>
-    <NestedTypes>
-      <Class Name="вход_курсач.DB_Quarterly.GasAggregation" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>SQL\DB_Report.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
-    <TypeIdentifier>
-      <HashCode>AAAgQKAIEAACAQAIEAgAgAACAEAACAAAAQEEAAAABAQ=</HashCode>
-      <FileName>SQL\DB_Report.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="вход_курсач.EmployeeItem">
     <Position X="18.25" Y="3.5" Width="1.5" />
     <TypeIdentifier>
@@ -99,13 +82,6 @@
     <TypeIdentifier>
       <HashCode>AAAAAAAAFCQEAAAAAACAACCCAAoEAAAAAAIEAAFAAAA=</HashCode>
       <FileName>Login\NewUsers.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="вход_курсач.NotificationService">
-    <Position X="27.75" Y="17.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAABAAAAAAEAAABQQAAAAAAAAAAAIA=</HashCode>
-      <FileName>Notificationservice .cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="вход_курсач.Program">
@@ -171,14 +147,6 @@
       <FileName>Report\Shift\ShiftReportModels.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="вход_курсач.TelegramBridge">
-    <Position X="35.25" Y="12.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAgAAAAAAAAAAAAAAQYAAABAAAAAAIgAQAAAAAAAA=</HashCode>
-      <FileName>TelegramBridge.cs.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
   <Class Name="вход_курсач.ShiftReportListItem">
     <Position X="27.75" Y="12.5" Width="1.5" />
     <TypeIdentifier>
@@ -215,30 +183,9 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="вход_курсач.WorkScheduleForm.HeaderPanel" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>UserManagment\Workscheduleform.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>CBEEhKAQUaBASEAADAjhDwACAIAMAMCCEEgAAAEBAIA=</HashCode>
       <FileName>UserManagment\Workscheduleform.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="вход_курсач.YearlyForecastResult">
-    <Position X="35.25" Y="17.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAQAAAAAAAgAAAAAAAAAAgAAAgACAAAAAAA=</HashCode>
-      <FileName>Report\Yearly\YearlyForecastService.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="вход_курсач.YearlyForecastService">
-    <Position X="21.25" Y="0.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Report\Yearly\YearlyForecastService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="вход_курсач.YearlyReportForm">
@@ -261,34 +208,6 @@
       <FileName>Design\GazpromStyle.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="вход_курсач.SQL.DB">
-    <Position X="8" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>IACgAAAACkABAAoECEAAAAZAARBAAAAkIQAICBgAJBE=</HashCode>
-      <FileName>SQL\DB.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="вход_курсач.SQL.SQL_DB">
-    <Position X="26.25" Y="17.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
-      <FileName>SQL\SQL_DB.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="вход_курсач.SQL.WorkPlanDB">
-    <Position X="22.75" Y="0.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAABAAAAAAAAAAAAAAAAIgIAAABAJAAAAAAQgAAA=</HashCode>
-      <FileName>SQL\WorkPlanDB.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="вход_курсач.SQL.WorkPlanItem">
-    <Position X="22.75" Y="4" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
-      <FileName>SQL\WorkPlanDB.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="вход_курсач.UserManagment.WorkScheduleItem">
     <Position X="21.25" Y="4.25" Width="1.5" />
     <TypeIdentifier>
@@ -296,12 +215,5 @@
       <FileName>UserManagment\WorkSchedule.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Interface Name="вход_курсач.ITelegramNotifier">
-    <Position X="35.25" Y="15.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAQIAAABAAAAAAAAAQAAAAAAAA=</HashCode>
-      <FileName>Notificationservice .cs</FileName>
-    </TypeIdentifier>
-  </Interface>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

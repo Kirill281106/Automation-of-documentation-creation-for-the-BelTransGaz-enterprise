@@ -3,12 +3,11 @@ namespace вход_курсач
 {
     public partial class Login : Form
     {
-        private DB _userDb;
+        private readonly DB_Users _userDb = new DB_Users();
 
         public Login()
         {
             InitializeComponent();
-            _userDb = new DB(Program.ConnectionString);
             ApplyGazpromStyle();
         }
 
@@ -33,7 +32,7 @@ namespace вход_курсач
                 return;
             }
 
-            ClassUser user = _userDb.Authenticate(login, password);
+            ClassUser? user = _userDb.Authenticate(login, password);
 
             if (user == null)
             {
@@ -41,13 +40,12 @@ namespace вход_курсач
                 return;
             }
 
-            if (user.Status == 0)
+            if (user.Status == Roles.Request)
             {
                 MessageBox.Show("Ваш аккаунт ещё не подтверждён");
                 return;
             }
 
-            //MessageBox.Show($"Добро пожаловать, {user.Name}! Роль: {user.RoleName}");
             Main mainForm = new Main(user.Status, user.Id);
             this.Hide();
             mainForm.ShowDialog();

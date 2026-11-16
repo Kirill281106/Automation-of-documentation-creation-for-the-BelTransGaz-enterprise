@@ -11,37 +11,14 @@
         {
             InitializeComponent();
 
-            _service = new QuarterlyForecastService(Program.ConnectionString);
+            _service = new QuarterlyForecastService();
             _filialId = _service.GetFilial(userId);
 
             LoadData();
 
-            this.Load += (s, e) => ApplyGazpromStyle();
+            this.Load += (s, e) => Design.GazpromStyle.StyleAll(this);
         }
 
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn)
-                    Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is Label lbl)
-                    Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb)
-                    Design.GazpromStyle.StyleComboBox(cmb);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
-        }
         private void LoadData()
         {
             _history = _service.GetHistory(_filialId);

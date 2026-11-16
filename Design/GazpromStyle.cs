@@ -101,16 +101,6 @@ namespace вход_курсач.Design
         }
 
         /// <summary>
-        /// Применяет стиль к GroupBox
-        /// </summary>
-        public static void StyleGroupBox(GroupBox groupBox)
-        {
-            groupBox.ForeColor = DarkGray;
-            groupBox.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            groupBox.BackColor = LightGray;
-        }
-
-        /// <summary>
         /// Применяет стиль к Panel
         /// </summary>
         public static void StylePanel(Panel panel, bool useBlueBackground = false)
@@ -119,30 +109,27 @@ namespace вход_курсач.Design
         }
 
         /// <summary>
-        /// Создаёт заголовок с синим фоном
+        /// Применяет стиль к форме и ко всем элементам на ней, включая вложенные в панели
         /// </summary>
-        public static Panel CreateHeaderPanel(string title)
+        public static void StyleAll(Form form)
         {
-            var panel = new Panel
-            {
-                BackColor = PrimaryBlue,
-                Height = 50,
-                Dock = DockStyle.Top
-            };
+            StyleForm(form);
+            StyleChildren(form);
+        }
 
-            var label = new Label
+        private static void StyleChildren(Control parent)
+        {
+            foreach (Control ctrl in parent.Controls)
             {
-                Text = title,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
-                AutoSize = false,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(20, 0, 0, 0),
-                Dock = DockStyle.Fill
-            };
+                if (ctrl is Button btn) StyleButton(btn);
+                else if (ctrl is TextBox txt) StyleTextBox(txt);
+                else if (ctrl is Label lbl) StyleLabel(lbl);
+                else if (ctrl is ComboBox cmb) StyleComboBox(cmb);
+                else if (ctrl is DataGridView dgv) StyleDataGridView(dgv);
+                else if (ctrl is Panel pnl) StylePanel(pnl);
 
-            panel.Controls.Add(label);
-            return panel;
+                StyleChildren(ctrl);
+            }
         }
     }
 }

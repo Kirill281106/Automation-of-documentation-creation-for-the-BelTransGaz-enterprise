@@ -1,49 +1,18 @@
-﻿using Control = System.Windows.Forms.Control;
-
-namespace вход_курсач
+﻿namespace вход_курсач
 {
     public partial class QuarterlyReportViewForm : Form
     {
         private readonly int _reportId;
-        private readonly DB_Quarterly _db;
+        private readonly DB_QuarterlyReport _db = new DB_QuarterlyReport();
         private QuarterlyReportListItem? _report;
 
-        public QuarterlyReportViewForm(int reportId, string connection)
+        public QuarterlyReportViewForm(int reportId)
         {
             InitializeComponent();
             _reportId = reportId;
-            _db = new DB_Quarterly(connection);
 
-            // ИСПРАВЛЕНИЕ: загружаем после того как форма создана,
-            // в событии Load, а не в конструкторе
             this.Load += QuarterlyReportViewForm_Load;
-            this.Load += (s, e) => ApplyGazpromStyle();
-        }
-
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn)
-                    Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is TextBox txt)
-                    Design.GazpromStyle.StyleTextBox(txt);
-                else if (ctrl is Label lbl)
-                    Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is DataGridView dgv)
-                    Design.GazpromStyle.StyleDataGridView(dgv);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
+            this.Load += (s, e) => Design.GazpromStyle.StyleAll(this);
         }
 
         private void QuarterlyReportViewForm_Load(object sender, EventArgs e)

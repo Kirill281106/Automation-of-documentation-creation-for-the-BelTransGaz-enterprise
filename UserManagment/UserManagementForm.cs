@@ -1,29 +1,29 @@
-using Dapper;
-
 namespace вход_курсач
 {
     public partial class UserManagementForm : Form
     {
-        private const int HrStatus = 2;
-        private const int AdminStatus = 6;
-
         private readonly int _currentUserId;
         private readonly int _currentUserStatus;
-        private readonly DB _db;
+        private readonly DB_Users _db = new DB_Users();
+        private readonly Design.ColumnSorter _sorter = new();
         private int? _selectedUserId;
         private int _currentUserFilial;
-        private string _lastSortedColumn = "";
-        private bool _ascending = true;
+
+        // Список пользователей видят отдел кадров, администратор и генеральный директор;
+        // остальным в этом окне показывается их личный график работы.
+        private bool CanSeeUsers =>
+            _currentUserStatus == Roles.Hr ||
+            _currentUserStatus == Roles.Admin ||
+            _currentUserStatus == Roles.Director;
 
         public UserManagementForm(int currentUserId, int currentUserStatus)
         {
             InitializeComponent();
             _currentUserId = currentUserId;
             _currentUserStatus = currentUserStatus;
-            _db = new DB(Program.ConnectionString);
 
             this.Load += UserManagementForm_Load;
-            this.Load += (s, e) => ApplyGazpromStyle();
+            this.Load += (s, e) => Design.GazpromStyle.StyleAll(this);
             dataGridViewUsers.ColumnHeaderMouseClick += DataGridViewUsers_ColumnHeaderMouseClick;
             dataGridViewUsers.SelectionChanged += DataGridViewUsers_SelectionChanged;
         }
@@ -68,81 +68,28 @@ namespace вход_курсач
             if (string.IsNullOrEmpty(columnName))
                 return;
 
-            if (_lastSortedColumn == columnName)
-                _ascending = !_ascending;
-            else
-                _ascending = true;
-
-            _lastSortedColumn = columnName;
-
-            if (_currentUserStatus == HrStatus || _currentUserStatus == AdminStatus || _currentUserStatus == 7)
-            {
-                var list = (List<UserManagementItem>)dataGridViewUsers.DataSource;
-
-                var prop = typeof(UserManagementItem).GetProperty(columnName);
-                if (prop == null) return;
-
-                list = _ascending
-                    ? list.OrderBy(x => prop.GetValue(x)).ToList()
-                    : list.OrderByDescending(x => prop.GetValue(x)).ToList();
-
-                dataGridViewUsers.DataSource = list;
-            }
-            else
-            {
-                var list = (List<WorkScheduleItem>)dataGridViewUsers.DataSource;
-
-                var prop = typeof(WorkScheduleItem).GetProperty(columnName);
-                if (prop == null) return;
-
-                list = _ascending
-                    ? list.OrderBy(x => prop.GetValue(x)).ToList()
-                    : list.OrderByDescending(x => prop.GetValue(x)).ToList();
-
-                dataGridViewUsers.DataSource = list;
-            }
-        }
-
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn) Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is TextBox txt) Design.GazpromStyle.StyleTextBox(txt);
-                else if (ctrl is Label lbl) Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb) Design.GazpromStyle.StyleComboBox(cmb);
-                else if (ctrl is DataGridView dgv) Design.GazpromStyle.StyleDataGridView(dgv);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
+            // В таблице либо список пользователей, либо личный график работы
+            if (dataGridViewUsers.DataSource is List<UserManagementItem> users)
+                dataGridViewUsers.DataSource = _sorter.Sort(users, columnName);
+            else if (dataGridViewUsers.DataSource is List<WorkScheduleItem> schedule)
+                dataGridViewUsers.DataSource = _sorter.Sort(schedule, columnName);
         }
 
         private void UserManagementForm_Load(object? sender, EventArgs e)
         {
             LoadFilials();
 
-            if (_currentUserStatus == HrStatus || _currentUserStatus == AdminStatus)
+            if (CanSeeUsers)
             {
                 LoadRoles();
                 RefreshUsers();
-                labelHint.Text = _currentUserStatus == HrStatus
-                    ? "Отдел кадров: работа только со своим филиалом."
-                    : "Администратор: полный доступ.";
-            }
-            else if (_currentUserStatus == 7)
-            {
-                LoadRoles();
-                RefreshGenUsers();
-                labelHint.Text = "Генеральный директор: видны все филиалы.";
+
+                if (_currentUserStatus == Roles.Hr)
+                    labelHint.Text = "Отдел кадров: работа только со своим филиалом.";
+                else if (_currentUserStatus == Roles.Admin)
+                    labelHint.Text = "Администратор: полный доступ.";
+                else
+                    labelHint.Text = "Генеральный директор: видны все филиалы.";
             }
             else
             {
@@ -164,18 +111,17 @@ namespace вход_курсач
         {
             try
             {
-                using (var conn = new Microsoft.Data.Sqlite.SqliteConnection(Program.ConnectionString))
-                {
-                    string sql = (_currentUserStatus == AdminStatus || _currentUserStatus == 7)
-                        ? "SELECT Status, RoleName FROM Status_and_RoleName WHERE Status > 0 ORDER BY Status"
-                        : "SELECT Status, RoleName FROM Status_and_RoleName WHERE Status > 0 AND Status < 5 ORDER BY Status";
+                // Отдел кадров не может назначать начальника филиала и выше
+                int maxStatus = _currentUserStatus == Roles.Hr ? Roles.Accountant : Roles.Director;
 
-                    var roles = conn.Query(sql).ToList();
-                    comboBoxRole.DisplayMember = "RoleName";
-                    comboBoxRole.ValueMember = "Status";
-                    comboBoxRole.DataSource = roles;
-                    comboBoxRole.SelectedIndex = -1;
-                }
+                var roles = _db.GetRoles()
+                    .Where(r => r.Status > Roles.Request && r.Status <= maxStatus)
+                    .ToList();
+
+                comboBoxRole.DisplayMember = "RoleName";
+                comboBoxRole.ValueMember = "Status";
+                comboBoxRole.DataSource = roles;
+                comboBoxRole.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
@@ -196,24 +142,11 @@ namespace вход_курсач
             }
         }
 
-        private void RefreshGenUsers()
-        {
-            try
-            {
-                dataGridViewUsers.DataSource = _db.GetUsersForGenManagement(_currentUserId);
-                ConfigureUserGrid();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки пользователей: {ex.Message}");
-            }
-        }
-
         private void RefreshWorkSchedule()
         {
             try
             {
-                var schedule = _db.GetUserWorkSchedule(_currentUserId);
+                var schedule = new DB_WorkSchedule().GetUserWorkSchedule(_currentUserId);
                 dataGridViewUsers.DataSource = schedule;
                 ConfigureWorkScheduleGrid();
             }
@@ -347,10 +280,7 @@ namespace вход_курсач
 
             MessageBox.Show(successMessage, "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            if (_currentUserStatus == 7)
-                RefreshGenUsers();
-            else
-                RefreshUsers();
+            RefreshUsers();
 
             ClearEditor();
         }

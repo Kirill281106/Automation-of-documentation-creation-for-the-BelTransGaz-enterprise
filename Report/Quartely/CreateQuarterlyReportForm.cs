@@ -4,7 +4,6 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using Dapper;
 using Control = System.Windows.Forms.Control;
 using Color = System.Drawing.Color;
 using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
@@ -19,19 +18,18 @@ namespace вход_курсач
     public partial class CreateQuarterlyReportForm : Form
     {
         private readonly int _userId;
-        private readonly DB_Quarterly _db;
+        private readonly DB_QuarterlyReport _db = new DB_QuarterlyReport();
+        private readonly Design.ColumnSorter _sorter = new();
         private List<QuarterlyReportListItem> _reports;
-        private string _lastSortedColumn = "";
-        private bool _ascending = true;
-
 
         public CreateQuarterlyReportForm(int userId)
         {
             InitializeComponent();
             _userId = userId;
-            _db = new DB_Quarterly(Program.ConnectionString);
-            var user = _db.GetUserById(userId);
-            if (user.Status != 4 && user.Status != 6)
+
+            // Создавать квартальные отчёты могут только бухгалтер и администратор
+            var user = new DB_Users().GetUserById(userId);
+            if (user == null || (user.Status != Roles.Accountant && user.Status != Roles.Admin))
             {
                 label1.Visible = false;
                 label2.Visible = false;
@@ -47,7 +45,7 @@ namespace вход_курсач
             LoadAvailableQuarters();
             LoadReports();
 
-            this.Load += (s, e) => ApplyGazpromStyle();
+            this.Load += (s, e) => Design.GazpromStyle.StyleAll(this);
             dataGridView1.ColumnHeaderMouseClick += DataGridView1_ColumnHeaderMouseClick;
         }
 
@@ -58,20 +56,7 @@ namespace вход_курсач
 
             string columnName = dataGridView1.Columns[e.ColumnIndex].Name;
 
-            if (_lastSortedColumn == columnName)
-                _ascending = !_ascending;
-            else
-                _ascending = true;
-
-            _lastSortedColumn = columnName;
-
-            var prop = typeof(QuarterlyReportListItem).GetProperty(columnName);
-            if (prop == null)
-                return;
-
-            _reports = _ascending
-                ? _reports.OrderBy(x => prop.GetValue(x)).ToList()
-                : _reports.OrderByDescending(x => prop.GetValue(x)).ToList();
+            _reports = _sorter.Sort(_reports, columnName);
 
             RedrawGrid();
         }
@@ -106,34 +91,6 @@ namespace вход_курсач
                     else if (report.Profit > 0)
                         dataGridView1.Rows[idx].Cells["Profit"].Style.ForeColor = Color.Green;
                 }
-            }
-        }
-
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn)
-                    Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is TextBox txt)
-                    Design.GazpromStyle.StyleTextBox(txt);
-                else if (ctrl is Label lbl)
-                    Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb)
-                    Design.GazpromStyle.StyleComboBox(cmb);
-                else if (ctrl is DataGridView dgv)
-                    Design.GazpromStyle.StyleDataGridView(dgv);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
             }
         }
 
@@ -174,50 +131,13 @@ namespace вход_курсач
             try
             {
                 _reports = _db.GetQuarterlyReports(_userId);
-                dataGridView1.Rows.Clear();
-
-                foreach (var report in _reports)
-                {
-                    string profitText = (report.PurchasePrice > 0) ? report.Profit.ToString("N2") : "❌ нет цен";
-
-                    dataGridView1.Rows.Add(
-                        report.Quarter,
-                        report.Year,
-                        report.FilialName,
-                        report.CompiledBy,
-                        report.AddressedTo,
-                        report.CreatedAt,
-                        report.PlannedGas.ToString("N2"),
-                        report.ActualGas.ToString("N2"),
-                        report.Completion.ToString("N2") + "%",
-                        profitText
-                    );
-
-                    var lastRow = dataGridView1.Rows[dataGridView1.Rows.Count - 1];
-                    if (report.PurchasePrice > 0)
-                    {
-                        if (report.Profit < 0) lastRow.Cells["Profit"].Style.ForeColor = Color.Red;
-                        else if (report.Profit > 0) lastRow.Cells["Profit"].Style.ForeColor = Color.Green;
-                    }
-                }
+                RedrawGrid();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private void btnCreate_Click_1(object sender, EventArgs e)
         {
-            if (_db == null)
-            {
-                MessageBox.Show("Ошибка: Объект базы данных не инициализирован (null).", "Ошибка");
-                return;
-            }
-
-            if (txtPurchasePrice == null || txtSalePrice == null)
-            {
-                MessageBox.Show("Ошибка: Текстовые поля txtPurchasePrice или txtSalePrice не найдены на форме!", "Ошибка");
-                return;
-            }
-
             if (cmbQuarter.SelectedItem == null || cmbYear.SelectedItem == null)
             {
                 MessageBox.Show("Пожалуйста, выберите квартал и год!", "Внимание");
@@ -240,13 +160,6 @@ namespace вход_курсач
 
                 if (result != null && result.Success)
                 {
-                    string filialName = _db.GetFilialNameById(_db.GetFilialByUserId(_userId));
-                    NotificationService.ReportCreated("Квартальный",
-                        $"{quarter} кв. {year} г.\n" +
-                        $"Филиал: {filialName}\n" +
-                        $"Цена закупки: {purchasePrice:N2} руб.\n" +
-                        $"Цена продажи: {salePrice:N2} руб.");
-
                     MessageBox.Show($"Квартальный отчёт за {quarter} кв. {year} г. успешно создан!", "Успех");
                     LoadReports();
                 }
@@ -286,7 +199,7 @@ namespace вход_курсач
                 return;
             }
 
-            var service = new QuarterlyForecastService(Program.ConnectionString);
+            var service = new QuarterlyForecastService();
             int filialId = service.GetFilial(_userId);
             var forecast = service.Calculate(filialId);
             var history = service.GetHistory(filialId);
@@ -306,22 +219,6 @@ namespace вход_курсач
             ExportToWord(reportFromList, dlg.FileName, forecast, history, chartPath, pPrice, sPrice);
 
             MessageBox.Show("Файл сохранён.", "Экспорт", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void UpdateReportsDisplay()
-        {
-            if (_reports != null)
-                LoadReports();
-        }
-
-        private void txtPurchasePrice_TextChanged(object sender, EventArgs e)
-        {
-            UpdateReportsDisplay();
-        }
-
-        private void txtSalePrice_TextChanged(object sender, EventArgs e)
-        {
-            UpdateReportsDisplay();
         }
 
         public static void ExportToWord(
@@ -548,9 +445,7 @@ namespace вход_курсач
             {
                 var selectedReport = _reports[selectedIndex];
 
-                using (var viewForm = new QuarterlyReportViewForm(
-                    selectedReport.Id,
-                    Program.ConnectionString))
+                using (var viewForm = new QuarterlyReportViewForm(selectedReport.Id))
                 {
                     viewForm.ShowDialog(this);
                 }

@@ -1,16 +1,9 @@
-using System.Text.Json;
-
 namespace вход_курсач
 {
-    public class AppConfig
-    {
-        public string DatabasePath { get; set; } = string.Empty;
-    }
-
     internal static class Program
     {
+        // Строка подключения к PostgreSQL, которой пользуются все классы DB_*
         public static string ConnectionString { get; private set; } = string.Empty;
-        private static string ConfigFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
 
         [STAThread]
         static void Main()
@@ -18,79 +11,57 @@ namespace вход_курсач
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             ApplicationConfiguration.Initialize();
 
-            // Загружаем сохранённый путь
-            string dbFile = LoadDatabasePath();
-
-            if (string.IsNullOrEmpty(dbFile) || !File.Exists(dbFile))
-            {
-                dbFile = ChooseDatabaseLocation();
-                if (string.IsNullOrEmpty(dbFile))
-                {
-                    MessageBox.Show("Не выбрано место для сохранения базы данных. Приложение будет закрыто.",
-                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                SaveDatabasePath(dbFile);
-            }
-
-            ConnectionString = $"Data Source={dbFile}";
-
-            string dbDirectory = Path.GetDirectoryName(dbFile);
-            if (!string.IsNullOrEmpty(dbDirectory) && !Directory.Exists(dbDirectory))
-                Directory.CreateDirectory(dbDirectory);
-
-            if (!File.Exists(dbFile))
-                CreateDatabase();
-
-            var telegramBridge = new TelegramBridge(ConnectionString);
-            NotificationService.Register(telegramBridge);
-
-            Console.WriteLine("WinForms приложение запущено. Бот должен быть запущен отдельно.");
+            if (!ConnectToDatabase())
+                return;
 
             Application.Run(new Login());
         }
 
-        private static string LoadDatabasePath()
+        // Подключается к базе по настройкам из config.json.
+        // Если настроек ещё нет или подключиться не удалось — показывает окно параметров
+        // подключения и пробует снова. Возвращает false, если пользователь закрыл это окно.
+        private static bool ConnectToDatabase()
         {
-            if (!File.Exists(ConfigFilePath))
-                return string.Empty;
+            DbSettings? settings = DbSettings.Load();
 
-            string json = File.ReadAllText(ConfigFilePath);
-            var config = JsonSerializer.Deserialize<AppConfig>(json);
-            return config?.DatabasePath ?? string.Empty;
-        }
-
-        private static void SaveDatabasePath(string path)
-        {
-            var config = new AppConfig { DatabasePath = path };
-            string json = JsonSerializer.Serialize(config);
-            File.WriteAllText(ConfigFilePath, json);
-        }
-
-        /// <summary>
-        /// Открывает диалог выбора папки для сохранения базы данных
-        /// </summary>
-        private static string ChooseDatabaseLocation()
-        {
-            using (var dialog = new FolderBrowserDialog())
+            while (true)
             {
-                dialog.Description = "Выберите папку для сохранения базы данных";
-                dialog.ShowNewFolderButton = true;
-
-                DialogResult result = dialog.ShowDialog();
-
-                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
+                if (settings != null)
                 {
-                    return Path.Combine(dialog.SelectedPath, "TPPO.db");
+                    try
+                    {
+                        ConnectionString = settings.ConnectionString;
+                        PrepareDatabase();
+                        settings.Save();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Не удалось подключиться к базе данных:\n{ex.Message}",
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
+
+                using var form = new ConnectionForm(settings ?? new DbSettings());
+                if (form.ShowDialog() != DialogResult.OK)
+                    return false;
+
+                settings = form.Settings;
             }
-            return string.Empty;
         }
 
-        private static void CreateDatabase()
+        // При первом запуске создаёт базу, таблицы и заполняет их начальными данными.
+        // Если всё это уже есть, ничего не меняет.
+        private static void PrepareDatabase()
         {
-            SQL_DB sql_db = new SQL_DB();
-            sql_db.SQLite_DB();
+            var create = new DB_Create();
+            create.CreateDatabase();
+            if (!create.TablesExist())
+                create.CreateTables();
+
+            var fill = new DB_Fill();
+            if (fill.IsEmpty())
+                fill.Fill();
         }
     }
 }

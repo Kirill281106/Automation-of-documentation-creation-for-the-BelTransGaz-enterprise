@@ -2,11 +2,9 @@
 {
     public partial class WorkScheduleForm : Form
     {
-        private const int ManagerStatus = 5;
-
         private readonly int _currentUserId;
         private readonly int _currentUserStatus;
-        private readonly DB _db;
+        private readonly DB_WorkSchedule _db = new DB_WorkSchedule();
         private int? _selectedScheduleId;
         private List<WorkScheduleItem> _allSchedule = new();
 
@@ -15,44 +13,9 @@
             InitializeComponent();
             _currentUserId = currentUserId;
             _currentUserStatus = currentUserStatus;
-            _db = new DB(Program.ConnectionString);
             Load += WorkScheduleForm_Load;
-            Load += (s, e) => ApplyGazpromStyle();
+            Load += (s, e) => Design.GazpromStyle.StyleAll(this);
         }
-
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn)
-                    Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is TextBox txt)
-                    Design.GazpromStyle.StyleTextBox(txt);
-                else if (ctrl is Label lbl)
-                    Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb)
-                    Design.GazpromStyle.StyleComboBox(cmb);
-                else if (ctrl is DataGridView dgv)
-                    Design.GazpromStyle.StyleDataGridView(dgv);
-                else if (ctrl is GroupBox gb)
-                    Design.GazpromStyle.StyleGroupBox(gb);
-                else if (ctrl is Panel pnl && !(pnl is HeaderPanel))
-                    Design.GazpromStyle.StylePanel(pnl);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
-        }
-
-        private class HeaderPanel : Panel { }
 
         // ── загрузка формы ────────────────────────────────────────────────
         private void WorkScheduleForm_Load(object? sender, EventArgs e)
@@ -70,7 +33,7 @@
             dateTimePickerWork.Value = DateTime.Today;
 
             // Панель редактирования видна только начальникам и выше
-            bool canEdit = _currentUserStatus >= ManagerStatus;
+            bool canEdit = _currentUserStatus >= Roles.Manager;
             panelEditor.Visible = canEdit;
 
             if (canEdit)
@@ -84,11 +47,11 @@
         {
             try
             {
-                var employees = _db.GetActiveEmployeesForSchedule(_currentUserId);
+                var employees = new DB_Users().GetActiveEmployeesForSchedule(_currentUserId);
                 comboBoxEmployee.DisplayMember = "FullName";
                 comboBoxEmployee.ValueMember = "Id";
 
-                // Добавляем вычисляемое FullName прямо здесь, чтобы не менять ClassUser
+                // В списке показываем ФИО и номер смены
                 var items = employees.Select(u => new
                 {
                     u.Id,
