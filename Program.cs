@@ -23,6 +23,7 @@ namespace вход_курсач
         private static bool ConnectToDatabase()
         {
             DbSettings? settings = DbSettings.Load();
+            bool enteredInForm = false;
 
             while (true)
             {
@@ -32,7 +33,8 @@ namespace вход_курсач
                     {
                         ConnectionString = settings.ConnectionString;
                         PrepareDatabase();
-                        settings.Save();
+                        if (enteredInForm)
+                            SaveSettings(settings);
                         return true;
                     }
                     catch (Exception ex)
@@ -47,6 +49,22 @@ namespace вход_курсач
                     return false;
 
                 settings = form.Settings;
+                enteredInForm = true;
+            }
+        }
+
+        // Если сохранить настройки не удалось (например, нет прав на запись в папку программы),
+        // программа всё равно работает, просто при следующем запуске параметры спросят снова.
+        private static void SaveSettings(DbSettings settings)
+        {
+            try
+            {
+                settings.Save();
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show($"Не удалось сохранить параметры подключения в config.json:\n{ex.Message}",
+                    "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
