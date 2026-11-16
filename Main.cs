@@ -14,59 +14,53 @@ namespace вход_курсач
             VisibleComponents();
             this.UserId = userId;
             this.Load += (s, e) => ApplyGazpromStyle();
-            this.Load += (s, e) => Main_Load(s, e);
+            this.Load += Main_Load;
         }
+
+        // Скрывает пункты меню, недоступные роли текущего пользователя
         private void VisibleComponents()
         {
-            if (this.Status == 1)
+            switch (this.Status)
             {
-                бэкапБдToolStripMenuItem.Visible = false;
-                квартальныйToolStripMenuItem.Visible = false;
-                годовойToolStripMenuItem.Visible = false;
-                планПоставкиToolStripMenuItem.Visible = false;
-                отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
-                пользователиToolStripMenuItem.Visible = false;
-                пользователиToolStripMenuItem.Visible = false;
-            }
-            if (this.Status==2)
-            {
-                бэкапБдToolStripMenuItem.Visible = false;
-                ОтчётToolStripMenuItem.Visible = false;
-                квартальныйToolStripMenuItem.Visible = false;
-                сменныйToolStripMenuItem.Visible = false;
-                годовойToolStripMenuItem.Visible = false;
-                планПоставкиToolStripMenuItem.Visible = false;
-                отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
-            }
-            if (this.Status == 3)
-            {
-                бэкапБдToolStripMenuItem.Visible = false;
-                квартальныйToolStripMenuItem.Visible = false;
-                годовойToolStripMenuItem.Visible = false;
-                пользователиToolStripMenuItem.Visible = false;
-                отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
-                пользователиToolStripMenuItem.Visible = false;
-            }
-            if (this.Status == 4)
-            {
-                бэкапБдToolStripMenuItem.Visible = false;
-                отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
-                пользователиToolStripMenuItem.Visible = false;
-            }
-            if (this.Status == 5)
-            {
-                бэкапБдToolStripMenuItem.Visible = false;
-                заявкиНаСозданиеНовогоПользователяToolStripMenuItem.Visible = false;
-            }
-            if (this.Status == 7)
-            {
-                ОтчётToolStripMenuItem.Visible = false;
-                бэкапБдToolStripMenuItem.Visible = false;
-                графикРаботыToolStripMenuItem.Visible = false;
-                планПоставкиToolStripMenuItem.Visible = false;
-                заявкиНаСозданиеНовогоПользователяToolStripMenuItem.Visible = false;
+                case Roles.Worker:
+                    квартальныйToolStripMenuItem.Visible = false;
+                    годовойToolStripMenuItem.Visible = false;
+                    планПоставкиToolStripMenuItem.Visible = false;
+                    отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
+                    пользователиToolStripMenuItem.Visible = false;
+                    break;
+
+                case Roles.Hr:
+                    ОтчётToolStripMenuItem.Visible = false;
+                    планПоставкиToolStripMenuItem.Visible = false;
+                    отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
+                    break;
+
+                case Roles.ShiftManager:
+                    квартальныйToolStripMenuItem.Visible = false;
+                    годовойToolStripMenuItem.Visible = false;
+                    отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
+                    пользователиToolStripMenuItem.Visible = false;
+                    break;
+
+                case Roles.Accountant:
+                    отчётОРаботеКомпанииToolStripMenuItem.Visible = false;
+                    пользователиToolStripMenuItem.Visible = false;
+                    break;
+
+                case Roles.Manager:
+                    заявкиНаСозданиеНовогоПользователяToolStripMenuItem.Visible = false;
+                    break;
+
+                case Roles.Director:
+                    ОтчётToolStripMenuItem.Visible = false;
+                    графикРаботыToolStripMenuItem.Visible = false;
+                    планПоставкиToolStripMenuItem.Visible = false;
+                    заявкиНаСозданиеНовогоПользователяToolStripMenuItem.Visible = false;
+                    break;
             }
         }
+
         private void ApplyGazpromStyle()
         {
             Design.GazpromStyle.StyleForm(this);
@@ -107,68 +101,55 @@ namespace вход_курсач
             }
         }
 
+        // Открывает окно раздела, пряча главное окно на время работы с ним
+        private void OpenWindow(Form form)
+        {
+            using (form)
+            {
+                this.Hide();
+                form.ShowDialog();
+                this.Show();
+            }
+        }
+
         private void заявкиНаСозданиеНовогоПользователяToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            NewUsers newUsers = new NewUsers(this.UserId);
-            this.Hide();
-            newUsers.ShowDialog();
-            this.Show();
+            OpenWindow(new NewUsers(this.UserId));
         }
 
         private void учётныеЗаписиToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UserManagementForm form = new UserManagementForm(this.UserId, this.Status);
-            this.Hide();
-            form.ShowDialog();
-            this.Show();
+            OpenWindow(new UserManagementForm(this.UserId, this.Status));
         }
 
         private void графикРаботыToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            WorkScheduleForm workScheduleForm = new WorkScheduleForm(this.UserId, this.Status);
-            this.Hide();
-            workScheduleForm.ShowDialog();
-            this.Show();
+            OpenWindow(new WorkScheduleForm(this.UserId, this.Status));
         }
 
         private void информацияОПредприToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Filials f = new Filials(this.UserId);
-            this.Hide();
-            f.ShowDialog();
-            this.Show();
+            OpenWindow(new Filials(this.UserId));
         }
 
         private void сменныйToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            RaportShift raport = new RaportShift(this.UserId);
-            this.Hide();
-            raport.ShowDialog();
-            this.Show();
+            OpenWindow(new RaportShift(this.UserId));
         }
 
         private void квартальныйToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CreateQuarterlyReportForm createQuarterlyReportForm = new CreateQuarterlyReportForm(this.UserId);
-            this.Hide();
-            createQuarterlyReportForm.ShowDialog();
-            this.Show();
+            OpenWindow(new CreateQuarterlyReportForm(this.UserId));
         }
 
         private void годовойToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            YearlyReportForm form = new YearlyReportForm(this.UserId);
-            this.Hide();
-            form.ShowDialog();
-            this.Show();
+            OpenWindow(new YearlyReportForm(this.UserId));
         }
 
         private void отчётОРаботеКомпанииToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CompanyYearlyReportForm form = new CompanyYearlyReportForm();
-            this.Hide();
-            form.ShowDialog();
-            this.Show();
+            OpenWindow(new CompanyYearlyReportForm());
         }
 
         private void планПоставкиToolStripMenuItem_Click(object sender, EventArgs e)
@@ -181,61 +162,14 @@ namespace вход_курсач
             dgvDailyPlan.Visible = true;
         }
 
-        private void бэкапБдToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string sourceDb = Program.ConnectionString.Replace("Data Source=", "").Trim();
-
-            if (!System.IO.File.Exists(sourceDb))
-            {
-                MessageBox.Show("Файл базы данных не найден!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            using var dlg = new SaveFileDialog
-            {
-                Title = "Создать резервную копию БД",
-                Filter = "Файлы SQLite (*.db)|*.db",
-                FileName = $"TPPO_backup_{DateTime.Now:yyyyMMdd_HHmm}.db"
-            };
-
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    System.IO.File.Copy(sourceDb, dlg.FileName, true);
-                    MessageBox.Show("Резервная копия успешно создана!\nПуть: " + dlg.FileName,
-                        "Бэкап", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при копировании: {ex.Message}",
-                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private WorkPlanDB _workPlanDB;
+        private readonly DB_WorkPlan _workPlanDB = new DB_WorkPlan();
         private int _currentFilialId;
         private DataTable _currentPlanTable = null;
         private bool _isViewMode = false;
 
         private void Main_Load(object sender, EventArgs e)
         {
-            _workPlanDB = new WorkPlanDB(Program.ConnectionString);
-
-            // Получаем филиал текущего пользователя
-            using (var conn = new Microsoft.Data.Sqlite.SqliteConnection(Program.ConnectionString))
-            {
-                conn.Open();
-                using (var cmd = new Microsoft.Data.Sqlite.SqliteCommand(
-                    "SELECT Filial FROM Users WHERE Id = @id", conn))
-                {
-                    cmd.Parameters.AddWithValue("@id", this.UserId);
-                    var result = cmd.ExecuteScalar();
-                    _currentFilialId = result != null ? Convert.ToInt32(result) : 0;
-                }
-            }
+            _currentFilialId = new DB_Users().GetUserFilial(this.UserId);
 
             LoadPlanMonths();
             LoadPlanYears();
@@ -468,12 +402,6 @@ namespace вход_курсач
                 string status = row[2].ToString();
 
                 if (status.Contains("Прошлый"))
-                {
-                    skipCount++;
-                    continue;
-                }
-
-                if (status.Contains("максимум на 3 месяца вперёд"))
                 {
                     skipCount++;
                     continue;

@@ -1,4 +1,4 @@
-namespace вход_курсач
+﻿namespace вход_курсач
 {
     // Модель для отображения в DataGridView (без Id-шников)
     internal class FilialDisplayItem
@@ -19,7 +19,21 @@ namespace вход_курсач
         public int?   ManagerId { get; set; }
     }
 
-    // Модель для ComboBox выбора начальника
+    // Филиал для выпадающего списка
+    internal class FilialItem
+    {
+        public int    Id   { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    // Роль для выпадающего списка (строка таблицы Status_and_RoleName)
+    internal class RoleItem
+    {
+        public int    Status   { get; set; }
+        public string RoleName { get; set; } = string.Empty;
+    }
+
+    // Сотрудник для выпадающих списков и состава смены
     internal class EmployeeItem
     {
         public int    Id       { get; set; }

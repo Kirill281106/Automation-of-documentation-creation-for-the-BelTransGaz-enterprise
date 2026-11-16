@@ -11,51 +11,42 @@ namespace вход_курсач
     public partial class RaportShift : Form
     {
         private readonly int _currentUserId;
-        private readonly DB_Quarterly _db;
+        private readonly DB_ShiftReport _db = new DB_ShiftReport();
+        private readonly DB_Users _users = new DB_Users();
+        private readonly Design.ColumnSorter _sorter = new();
         private ClassUser? _currentUser;
         private int _currentFilialId;
         private int _editingReportId = 0;
         private int _currentTeamNum = 0;
         private List<ShiftReportListItem> _currentShiftList = new();
-        private string _lastSortedColumn = "";
-        private bool _ascending = true;
 
         public RaportShift(int userId)
         {
             InitializeComponent();
             _currentUserId = userId;
-            _db = new DB_Quarterly(Program.ConnectionString);
-            var user = _db.GetUserById(userId);
-            if (user.Status == 3 || user.Status == 6)
+
+            // Форма создания отчёта видна только начальнику смены и администратору
+            var user = _users.GetUserById(userId);
+            bool canCreate = user != null &&
+                (user.Status == Roles.ShiftManager || user.Status == Roles.Admin);
+
+            if (canCreate)
             {
-                textBox1.Visible = true;
-                textBox2.Visible = true;
-                textBox3.Visible = true;
-                textBox4.Visible = true;
-                textBox5.Visible = true;
-                textBox6.Visible = true;
-                textBox7.Visible = true;
-                textBox8.Visible = true;
-                label4.Visible = true;
-                label13.Visible = true;
-                label11.Visible = true;
-                label5.Visible = true;
-                label3.Visible = true;
-                label6.Visible = true;
-                label7.Visible = true;
-                label8.Visible = true;
-                label9.Visible = true;
-                label10.Visible = true;
-                cmbNextManager.Visible = true;
-                listBox1.Visible = true;
-                btnSave.Visible = true;
-                btnChange.Visible = true;
-                btnImport.Visible = true;
+                foreach (Control ctrl in new Control[]
+                {
+                    textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7, textBox8,
+                    label3, label4, label5, label6, label7, label8, label9, label10, label11, label13,
+                    cmbNextManager, listBox1, btnSave, btnChange, btnImport
+                })
+                {
+                    ctrl.Visible = true;
+                }
             }
-            if (user.Status != 1)
+
+            if (user != null && user.Status != Roles.Worker)
                 btnImport.Visible = true;
             Load += RaportShift_Load;
-            Load += (s, e) => ApplyGazpromStyle();
+            Load += (s, e) => Design.GazpromStyle.StyleAll(this);
             dataGridView1.ColumnHeaderMouseClick += DataGridView1_ColumnHeaderMouseClick;
         }
 
@@ -69,63 +60,15 @@ namespace вход_курсач
             if (string.IsNullOrEmpty(columnName))
                 return;
 
-            if (_lastSortedColumn == columnName)
-                _ascending = !_ascending;
-            else
-                _ascending = true;
-
-            _lastSortedColumn = columnName;
-
-            var prop = typeof(ShiftReportListItem).GetProperty(columnName);
-            if (prop == null)
-                return;
-
-            _currentShiftList = _ascending
-                ? _currentShiftList.OrderBy(x => prop.GetValue(x)).ToList()
-                : _currentShiftList.OrderByDescending(x => prop.GetValue(x)).ToList();
+            _currentShiftList = _sorter.Sort(_currentShiftList, columnName);
 
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = _currentShiftList;
         }
 
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn)
-                    Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is TextBox txt)
-                    Design.GazpromStyle.StyleTextBox(txt);
-                else if (ctrl is Label lbl)
-                    Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb)
-                    Design.GazpromStyle.StyleComboBox(cmb);
-                else if (ctrl is DataGridView dgv)
-                    Design.GazpromStyle.StyleDataGridView(dgv);
-                else if (ctrl is GroupBox gb)
-                    Design.GazpromStyle.StyleGroupBox(gb);
-                else if (ctrl is NumericUpDown num)
-                {
-                    num.BackColor = Color.White;
-                    num.ForeColor = Design.GazpromStyle.DarkGray;
-                }
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
-        }
-
         private void RaportShift_Load(object? sender, EventArgs e)
         {
-            _currentUser = _db.GetUserById(_currentUserId);
+            _currentUser = _users.GetUserById(_currentUserId);
             if (_currentUser == null)
             {
                 MessageBox.Show("Пользователь не найден");
@@ -146,16 +89,9 @@ namespace вход_курсач
             textBox3.Text = $"{_currentUser.Surname} {_currentUser.Name[0]}." +
                            $"{(_currentUser.SecondName?.Length > 0 ? _currentUser.SecondName[0] + "." : "")}";
 
-            var managers = _db.GetShiftManagersInFilial(_currentFilialId, _currentUserId);
+            // Кому можно передать смену: начальники смены этого же филиала
             var list = new List<EmployeeItem> { new EmployeeItem { Id = 0, FullName = "— Не выбран —" } };
-
-            var shiftManagersOnly = managers.Where(m =>
-            {
-                var user = _db.GetUserById(m.Id);
-                return user != null && user.Status == 3;
-            }).ToList();
-
-            list.AddRange(shiftManagersOnly);
+            list.AddRange(_users.GetShiftManagersInFilial(_currentFilialId, _currentUserId));
             cmbNextManager.DataSource = list;
             cmbNextManager.DisplayMember = "FullName";
             cmbNextManager.ValueMember = "Id";
@@ -173,7 +109,7 @@ namespace вход_курсач
 
         private void LoadTeamMembers()
         {
-            var teamMembers = _db.GetTeamMembers(_currentFilialId, _currentTeamNum, _currentUserId);
+            var teamMembers = _users.GetTeamMembers(_currentFilialId, _currentTeamNum, _currentUserId);
             listBox1.DataSource = teamMembers;
             listBox1.DisplayMember = "FullName";
             listBox1.ValueMember = "Id";
@@ -225,7 +161,7 @@ namespace вход_курсач
             try
             {
                 DateTime today = DateTime.Today;
-                double dailyPlan = _db.GetDailyPlanVolume(_currentFilialId, today);
+                double dailyPlan = new DB_WorkPlan().GetDailyPlanVolume(_currentFilialId, today);
 
                 if (dailyPlan > 0)
                 {
@@ -237,10 +173,9 @@ namespace вход_курсач
                     textBox4.Text = "";
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 textBox4.Text = "";
-                Console.WriteLine($"Ошибка загрузки плана: {ex.Message}");
             }
 
             CalculateCompletion();
@@ -300,8 +235,8 @@ namespace вход_курсач
                 int? nextManagerId = null;
                 if (cmbNextManager.SelectedItem is EmployeeItem selected && selected.Id > 0)
                 {
-                    var selectedUser = _db.GetUserById(selected.Id);
-                    if (selectedUser != null && selectedUser.Status == 3)
+                    var selectedUser = _users.GetUserById(selected.Id);
+                    if (selectedUser != null && selectedUser.Status == Roles.ShiftManager)
                     {
                         nextManagerId = selected.Id;
                     }
@@ -329,19 +264,6 @@ namespace вход_курсач
                 };
 
                 _db.SaveShiftReport(report);
-
-                NotificationService.NewShiftReport(
-                    reportDate: report.ReportDate,
-                    filialName: _db.GetFilialNameById(_currentUser.Filial),
-                    shiftType: report.ShiftType,
-                    managerName: $"{_currentUser.Surname} {_currentUser.Name}"
-                );
-
-                NotificationService.ReportCreated("Сменный",
-                    $"Филиал: {_db.GetFilialNameById(_currentUser.Filial)}\n" +
-                    $"Смена: {report.ShiftType}\n" +
-                    $"Начальник: {_currentUser.Surname} {_currentUser.Name}\n" +
-                    $"№ отчёта: {report.ReportNumber}");
 
                 string message = _editingReportId == 0 ? "Отчёт добавлен!" : "Отчёт изменён!";
                 MessageBox.Show(message, "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -431,7 +353,7 @@ namespace вход_курсач
         {
             try
             {
-                var shiftManager = _db.GetUserById(report.ShiftManagerId);
+                var shiftManager = _users.GetUserById(report.ShiftManagerId);
                 string managerName = shiftManager != null
                     ? $"{shiftManager.Surname} {shiftManager.Name[0]}.{(!string.IsNullOrEmpty(shiftManager.SecondName) ? shiftManager.SecondName[0] + "." : "")}"
                     : "Неизвестно";
@@ -439,7 +361,7 @@ namespace вход_курсач
                 string nextManagerName = "—";
                 if (report.NextManagerId.HasValue)
                 {
-                    var nextManager = _db.GetUserById(report.NextManagerId.Value);
+                    var nextManager = _users.GetUserById(report.NextManagerId.Value);
                     if (nextManager != null)
                     {
                         nextManagerName = $"{nextManager.Surname} {nextManager.Name[0]}.{(!string.IsNullOrEmpty(nextManager.SecondName) ? nextManager.SecondName[0] + "." : "")}";

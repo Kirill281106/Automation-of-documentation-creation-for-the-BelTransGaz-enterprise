@@ -32,15 +32,10 @@
     }
     public class QuarterlyForecastService
     {
-        private readonly DB_Quarterly _db;
-
-        public QuarterlyForecastService(string connection)
-        {
-            _db = new DB_Quarterly(connection);
-        }
+        private readonly DB_QuarterlyReport _db = new DB_QuarterlyReport();
 
         public int GetFilial(int userId) =>
-            _db.GetFilialByUserId(userId);
+            new DB_Users().GetUserFilial(userId);
 
         public List<QuartelyPoint> GetHistory(int filialId) =>
             _db.GetHistoryPoints(filialId);

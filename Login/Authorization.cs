@@ -1,15 +1,12 @@
-﻿using Dapper;
-
-namespace вход_курсач
+﻿namespace вход_курсач
 {
     public partial class Authorization : Form
     {
-        private DB _db;
+        private readonly DB_Requests _db = new DB_Requests();
 
         public Authorization()
         {
             InitializeComponent();
-            _db = new DB(Program.ConnectionString);
             this.Load += Authorization_Load;
             this.Load += (s, e) => ApplyGazpromStyle();
         }
@@ -27,27 +24,19 @@ namespace вход_курсач
                     Design.GazpromStyle.StyleComboBox(cmb);
             }
         }
-        public void Authorization_FormClosing()
-        {
-            Application.Exit();
-        }
         private void Authorization_Load(object sender, EventArgs e)
         {
             try
             {
-                using (var conn = new Microsoft.Data.Sqlite.SqliteConnection(Program.ConnectionString))
-                {
-                    conn.Open();
-                    var list = conn.Query("SELECT Id, Name FROM Filials ORDER BY Name").ToList();
-                    FilialCombo.DisplayMember = "Name";
-                    FilialCombo.ValueMember = "Id";
-                    FilialCombo.DataSource = list;
-                    FilialCombo.SelectedIndex = -1;
+                var list = new DB_Filials().GetFilials();
+                FilialCombo.DisplayMember = "Name";
+                FilialCombo.ValueMember = "Id";
+                FilialCombo.DataSource = list;
+                FilialCombo.SelectedIndex = -1;
 
-                    if (list.Count == 0)
-                    {
-                        MessageBox.Show("Список филиалов пуст. Обратитесь к администратору.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                if (list.Count == 0)
+                {
+                    MessageBox.Show("Список филиалов пуст. Обратитесь к администратору.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
@@ -80,7 +69,6 @@ namespace вход_курсач
                 MessageBox.Show("Пользователь с таким логином уже существует или произошла ошибка.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            NotificationService.NewRequest(surname, name);
             MessageBox.Show("Заявка отправлена. Дождитесь подтверждения.", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }

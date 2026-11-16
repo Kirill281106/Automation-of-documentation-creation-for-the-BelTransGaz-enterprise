@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             menuStrip1 = new MenuStrip();
             toolStripMenuItem1 = new ToolStripMenuItem();
-            бэкапБдToolStripMenuItem = new ToolStripMenuItem();
             ОтчётToolStripMenuItem = new ToolStripMenuItem();
             сменныйToolStripMenuItem = new ToolStripMenuItem();
             квартальныйToolStripMenuItem = new ToolStripMenuItem();
@@ -60,7 +59,7 @@
             menuStrip1.BackColor = Color.FromArgb(0, 102, 204);
             menuStrip1.ForeColor = Color.White;
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { toolStripMenuItem1, бэкапБдToolStripMenuItem, ОтчётToolStripMenuItem, планПоставкиToolStripMenuItem, отчётОРаботеКомпанииToolStripMenuItem, пользователиToolStripMenuItem, графикРаботыToolStripMenuItem, информацияОПредприToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { toolStripMenuItem1, ОтчётToolStripMenuItem, планПоставкиToolStripMenuItem, отчётОРаботеКомпанииToolStripMenuItem, пользователиToolStripMenuItem, графикРаботыToolStripMenuItem, информацияОПредприToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1076, 28);
@@ -71,13 +70,6 @@
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
             toolStripMenuItem1.Size = new Size(14, 24);
-            // 
-            // бэкапБдToolStripMenuItem
-            // 
-            бэкапБдToolStripMenuItem.Name = "бэкапБдToolStripMenuItem";
-            бэкапБдToolStripMenuItem.Size = new Size(84, 24);
-            бэкапБдToolStripMenuItem.Text = "бэкап бд";
-            бэкапБдToolStripMenuItem.Click += бэкапБдToolStripMenuItem_Click;
             // 
             // ОтчётToolStripMenuItem
             // 
@@ -271,7 +263,6 @@
         private ToolStripMenuItem отчётОРаботеКомпанииToolStripMenuItem;
         private Button btnSavePlanToDB;
         private ToolStripMenuItem планПоставкиToolStripMenuItem;
-        private ToolStripMenuItem бэкапБдToolStripMenuItem;
         private Label lblTotalPlan;
         private Label lblAveragePlan;
         private DataGridView dgvDailyPlan;

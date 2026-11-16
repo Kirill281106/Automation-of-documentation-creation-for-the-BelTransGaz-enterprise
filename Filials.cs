@@ -6,8 +6,7 @@ namespace вход_курсач
 {
     public partial class Filials : Form
     {
-        private readonly DB _db = new DB(Program.ConnectionString);
-        private readonly DB_Quarterly _db_q;   // добавляем инициализацию
+        private readonly DB_Filials _db = new DB_Filials();
 
         public Filials(int UserId)
         {
@@ -15,82 +14,27 @@ namespace вход_курсач
 
             if (DesignMode) return;
 
-            _db_q = new DB_Quarterly(Program.ConnectionString);   // ← ИСПРАВЛЕНИЕ
+            // Добавлять, изменять и удалять филиалы могут отдел кадров, начальник филиала и администратор
+            var user = new DB_Users().GetUserById(UserId);
+            bool canEdit = user != null &&
+                (user.Status == Roles.Hr || user.Status == Roles.Manager || user.Status == Roles.Admin);
 
-            var user = _db_q.GetUserById(UserId);
-            if (user != null && (user.Status == 2 || user.Status == 6 || user.Status == 5))
-            {
-                lblName.Visible = true;
-                lblAddress.Visible = true;
-                lblContact.Visible = true;
-                txtName.Visible = true;
-                txtAddress.Visible = true;
-                txtContact.Visible = true;
-                Добавить.Visible = true;
-                Изменить.Visible = true;
-                Удалить.Visible = true;
-            }
-            else
-            {
-                // Скрываем всё для обычных пользователей
-                lblName.Visible = false;
-                lblAddress.Visible = false;
-                lblContact.Visible = false;
-                txtName.Visible = false;
-                txtAddress.Visible = false;
-                txtContact.Visible = false;
-                Добавить.Visible = false;
-                Изменить.Visible = false;
-                Удалить.Visible = false;
-            }
+            lblName.Visible = canEdit;
+            lblAddress.Visible = canEdit;
+            lblContact.Visible = canEdit;
+            txtName.Visible = canEdit;
+            txtAddress.Visible = canEdit;
+            txtContact.Visible = canEdit;
+            Добавить.Visible = canEdit;
+            Изменить.Visible = canEdit;
+            Удалить.Visible = canEdit;
 
-            LoadEmployeesComboBox();
             RefreshGrid();
 
-            this.Load += (s, e) => ApplyGazpromStyle();
+            this.Load += (s, e) => Design.GazpromStyle.StyleAll(this);
         }
 
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn)
-                    Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is TextBox txt)
-                    Design.GazpromStyle.StyleTextBox(txt);
-                else if (ctrl is Label lbl)
-                    Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb)
-                    Design.GazpromStyle.StyleComboBox(cmb);
-                else if (ctrl is DataGridView dgv)
-                    Design.GazpromStyle.StyleDataGridView(dgv);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
-        }
-
-        // Загрузка ComboBox сотрудников 
-        private void LoadEmployeesComboBox()
-        {
-            var employees = _db.GetActiveEmployees();
-            var noManager = new EmployeeItem { Id = 0, FullName = "— Не назначен —" };
-            var list = new List<EmployeeItem> { noManager };
-            list.AddRange(employees);
-
-            // Если ComboBox для выбора начальника остался — заполняем его
-            // (если ты его удалил — этот метод можно удалить)
-        }
-
-        // Обновление таблицы 
+        // Обновление таблицы
         private void RefreshGrid()
         {
             var data = _db.GetFilialsForDisplay();
@@ -223,7 +167,9 @@ namespace вход_курсач
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://belarus-tr.gazprom.ru/about/");
+            // UseShellExecute нужен, чтобы ссылка открылась в браузере по умолчанию
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(
+                "https://belarus-tr.gazprom.ru/about/") { UseShellExecute = true });
         }
     }
 }

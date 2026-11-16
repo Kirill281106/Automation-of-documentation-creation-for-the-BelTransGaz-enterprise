@@ -7,44 +7,16 @@ namespace вход_курсач
 {
     public partial class CompanyYearlyReportForm : Form
     {
-        private readonly DB_Quarterly _db;
+        private readonly DB_YearlyReport _db = new DB_YearlyReport();
         private List<CompanyYearItem> _data;
         private int _selectedYear;
 
-        public CompanyYearlyReportForm()    
+        public CompanyYearlyReportForm()
         {
             InitializeComponent();
-            _db = new DB_Quarterly(Program.ConnectionString);
-
             LoadYears();
 
-            this.Load += (s, e) => ApplyGazpromStyle();
-        }
-
-        private void ApplyGazpromStyle()
-        {
-            Design.GazpromStyle.StyleForm(this);
-            foreach (Control ctrl in GetAllControls(this))
-            {
-                if (ctrl is Button btn)
-                    Design.GazpromStyle.StyleButton(btn);
-                else if (ctrl is Label lbl)
-                    Design.GazpromStyle.StyleLabel(lbl);
-                else if (ctrl is ComboBox cmb)
-                    Design.GazpromStyle.StyleComboBox(cmb);
-                else if (ctrl is DataGridView dgv)
-                    Design.GazpromStyle.StyleDataGridView(dgv);
-            }
-        }
-
-        private IEnumerable<Control> GetAllControls(Control parent)
-        {
-            foreach (Control ctrl in parent.Controls)
-            {
-                yield return ctrl;
-                foreach (var child in GetAllControls(ctrl))
-                    yield return child;
-            }
+            this.Load += (s, e) => Design.GazpromStyle.StyleAll(this);
         }
 
         private void LoadYears()
