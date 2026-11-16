@@ -7,9 +7,21 @@ namespace вход_курсач
     // Заполнение начальными данными — в классе DB_Fill.
     internal class DB_Create : DB_Base
     {
+        // Код ошибки PostgreSQL «базы данных с таким именем нет»
+        private const string DatabaseNotFound = "3D000";
+
         // Создаёт саму базу данных на сервере PostgreSQL, если её ещё нет
         public void CreateDatabase()
         {
+            try
+            {
+                using var db = Open();
+                return;
+            }
+            catch (PostgresException ex) when (ex.SqlState == DatabaseNotFound)
+            {
+            }
+
             var settings = new NpgsqlConnectionStringBuilder(Program.ConnectionString);
             string databaseName = settings.Database!;
 
@@ -17,13 +29,7 @@ namespace вход_курсач
             settings.Database = "postgres";
             using var server = new NpgsqlConnection(settings.ConnectionString);
             server.Open();
-
-            bool exists = server.ExecuteScalar<bool>(
-                "SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname = @Name)",
-                new { Name = databaseName });
-
-            if (!exists)
-                server.Execute($"CREATE DATABASE \"{databaseName.Replace("\"", "\"\"")}\"");
+            server.Execute($"CREATE DATABASE \"{databaseName.Replace("\"", "\"\"")}\"");
         }
 
         public bool TablesExist()
